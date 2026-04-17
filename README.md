@@ -1625,6 +1625,32 @@ from Step 2. Generates a static keypair on boot.
 
 ### Step 5: Gateway (WS Relay)
 
+**Status**: Local implementation complete. `@tacet/gateway` at `gateway/` is a
+pure Node.js + `ws` + `zod` server (no Hono — kept deps minimal). It loads a
+JSON config file at boot (`configs.json` with `{id, name, tee_url, model_name}`
+entries, Zod-validated) into an in-memory registry. HTTP surface:
+`GET /healthz`, `GET /v1/configs` (public listing with no secrets),
+`GET /v1/keys?config_id=<uuid>` (proxies the TEE's `/v1/keys` with a 30s TTL
+cache and concurrent-fetch dedup). WS surface: `WS /v1/ws?config_id=<uuid>`
+opens an upstream WS to `{tee_url}/v1/ws` and relays binary frames 1:1 — the
+gateway never decrypts or parses Noise traffic. Client frames received before
+the upstream WS is `OPEN` are buffered and flushed on connect. Pre-handshake
+errors (invalid config, TEE unreachable) are emitted as plaintext tag-`0x05`
+ERROR frames before close. CORS is `*` on all HTTP endpoints. 21 tests passing,
+including a full-stack E2E that runs a real Noise NK handshake from a client
+through the gateway into the real `@tacet/tee-runtime` against a fake vLLM
+(non-streaming, streaming, upstream-unreachable, unknown config, key proxy).
+
+Cloud validation passed on 2026-04-17: provisioned a vast.ai RTX 3060 box,
+ran native vLLM 0.19.0 + Qwen2.5-0.5B-Instruct + `tacet-noise` runtime on
+loopback, SSH-tunneled `8443` to the laptop, ran the gateway on the laptop
+pointed at `http://127.0.0.1:8443` (tunnel), and drove
+`gateway/scripts/smoke.ts` end-to-end. All checks pass: `/healthz`,
+`/v1/configs`, `/v1/keys` proxy, NK handshake through the relay,
+non-streaming completion (919ms), and streaming completion (31 chunks,
+568ms). As with Step 3, vLLM ran natively on the host — booting it inside
+the mkosi image still awaits the Step 9 confidential-VM work.
+
 **Goal**: The untrusted gateway that accepts WS connections from clients and
 relays opaque encrypted blobs to/from the TEE backend.
 
@@ -1632,7 +1658,8 @@ relays opaque encrypted blobs to/from the TEE backend.
 - Look up config_id → TEE backend address
 - Open WS to TEE backend
 - Forward all messages bidirectionally (can't read them — encrypted)
-- Also serves `GET /v1/keys` (TEE public key) and `GET /v1/configs`
+- Also serves `GET /v1/keys?config_id=<uuid>` (proxies TEE public key with
+  short TTL cache) and `GET /v1/configs` (public listing)
 
 ### Step 6: Browser SDK (WS + Noise)
 

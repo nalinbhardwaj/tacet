@@ -1,0 +1,30 @@
+{
+  "name": "@tacet/gateway",
+  "version": "0.1.0",
+  "description": "Tacet gateway — untrusted WebSocket relay between browser SDKs and TEE backends",
+  "type": "module",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "smoke": "tsx scripts/smoke.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.scripts.json"
+  },
+  "dependencies": {
+    "ws": "^8",
+    "zod": "^3"
+  },
+  "devDependencies": {
+    "@tacet/noise": "workspace:*",
+    "@tacet/tee-runtime": "workspace:*",
+    "@types/node": "^22",
+    "@types/ws": "^8",
+    "tsx": "^4",
+    "typescript": "^5",
+    "vitest": "^3"
+  },
+  "files": ["dist"],
+  "license": "MIT"
+}

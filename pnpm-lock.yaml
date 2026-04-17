@@ -12,6 +12,37 @@ importers:
         specifier: ^2
         version: 2.9.6
 
+  gateway:
+    dependencies:
+      ws:
+        specifier: ^8
+        version: 8.20.0
+      zod:
+        specifier: ^3
+        version: 3.25.76
+    devDependencies:
+      '@tacet/noise':
+        specifier: workspace:*
+        version: link:../packages/noise
+      '@tacet/tee-runtime':
+        specifier: workspace:*
+        version: link:../tee/runtime
+      '@types/node':
+        specifier: ^22
+        version: 22.19.17
+      '@types/ws':
+        specifier: ^8
+        version: 8.18.1
+      tsx:
+        specifier: ^4
+        version: 4.21.0
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+      vitest:
+        specifier: ^3
+        version: 3.2.4(@types/node@22.19.17)(tsx@4.21.0)
+
   packages/noise:
     dependencies:
       '@noble/ciphers':

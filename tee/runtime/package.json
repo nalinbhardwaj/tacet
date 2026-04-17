@@ -4,6 +4,13 @@
   "description": "Tacet TEE Noise endpoint — terminates Noise over WebSocket, forwards to local vLLM",
   "type": "module",
   "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
   "scripts": {
     "build": "tsc && esbuild src/index.ts --bundle --platform=node --target=node20 --format=esm --outfile=dist/server.mjs --banner:js=\"import { createRequire } from 'module'; const require = createRequire(import.meta.url);\"",
     "dev": "tsx src/index.ts",

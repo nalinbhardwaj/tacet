@@ -1,0 +1,10 @@
+{
+  "configs": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "qwen-0.5b-local",
+      "tee_url": "http://127.0.0.1:8443",
+      "model_name": "Qwen/Qwen2.5-0.5B-Instruct"
+    }
+  ]
+}
