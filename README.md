@@ -1,5 +1,7 @@
 # Tacet - End-to-End Encrypted AI API Gateway
 
+> **This project is under active development.** Everything below is a living design doc / implementation plan — expect rough edges and incomplete features.
+
 > "tacet" (Latin: "it is silent") — An OpenAI-compatible API gateway with
 > end-to-end encrypted inference, inspired by confer.to's architecture.
 
