@@ -1,0 +1,32 @@
+{
+  "name": "@tacet/noise",
+  "version": "0.1.0",
+  "description": "Noise Protocol implementation for Tacet E2E encrypted inference",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@noble/ciphers": "^1",
+    "@noble/curves": "^2",
+    "@noble/hashes": "^2",
+    "zod": "^3"
+  },
+  "devDependencies": {
+    "typescript": "^5",
+    "vitest": "^3"
+  },
+  "files": ["dist"],
+  "license": "MIT"
+}
