@@ -10,6 +10,9 @@ ExecStart=/usr/local/bin/tacet-vllm
 Environment=HOME=/root
 Environment=HF_HUB_CACHE=/tmp/huggingface
 Environment=XDG_CACHE_HOME=/tmp/.cache
+# vLLM listens only on loopback — only the Noise endpoint reaches it.
+# External clients must go through tacet-noise on port 8443 (encrypted).
+Environment=VLLM_HOST=127.0.0.1
 # Default model path — override via drop-in or EnvironmentFile
 Environment=VLLM_MODEL=/models/current
 Restart=on-failure

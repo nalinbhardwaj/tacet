@@ -1588,6 +1588,23 @@ the rest of the stack at. (This is essentially Step 1g extended.)
 
 ### Step 4: Noise Endpoint in Image
 
+**Status**: Local implementation complete. `@tacet/tee-runtime` at `tee/runtime/`
+implements a Node.js + `ws` Noise endpoint on port 8443 with `GET /v1/keys`,
+`GET /healthz`, and `WS /v1/ws`. Uses NK pattern via `@tacet/noise`.
+Fresh keypair generated on each boot. Request/response framing: 1-byte tag
+(`0x01` handshake, `0x02` request, `0x03` response.chunk, `0x04` response.done,
+`0x05` error) plus Noise transport ciphertext; requests serialized per WS
+connection. 9 tests passing against a fake vLLM backend (handshake,
+non-streaming, streaming, vLLM 5xx, two sequential requests, concurrent-request
+rejection). Wired into the mkosi image: `make stage-runtime` produces
+`dist/server.mjs` → `mkosi.extra/opt/tacet/server.mjs`, `nodejs` added to image
+packages, `tacet-noise.service` systemd unit enabled alongside `tacet-vllm`,
+vLLM locked to `127.0.0.1` so only the Noise endpoint is externally reachable.
+
+Still to validate: boot the full image on a real vast.ai box, confirm
+`curl /v1/keys` + WS round-trip against real vLLM streaming (rolled in at the
+start of Step 5 together with the gateway integration).
+
 **Goal**: Add a Noise-aware server to the VM image that sits in front of vLLM.
 Accepts Noise-encrypted requests over WebSocket, decrypts them, forwards to
 vLLM over localhost HTTP, encrypts the response, returns over WS.

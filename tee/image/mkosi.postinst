@@ -42,6 +42,7 @@ fi
 
 # Enable services
 chroot /buildroot systemctl enable tacet-vllm.service || true
+chroot /buildroot systemctl enable tacet-noise.service || true
 chroot /buildroot systemctl enable systemd-networkd.service || true
 
 # Make launch script executable

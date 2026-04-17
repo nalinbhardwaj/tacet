@@ -1,0 +1,22 @@
+[Unit]
+Description=Tacet Noise Endpoint (WebSocket ↔ vLLM bridge)
+Documentation=https://github.com/nibnalin/tacet
+After=network-online.target tacet-vllm.service
+Wants=network-online.target
+# The Noise endpoint is useless without vLLM running locally; we only
+# require vLLM to be *started*, not healthy — vLLM boot can take a while
+# when the model is large and the endpoint will retry on request.
+Requires=tacet-vllm.service
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/bin/node /opt/tacet/server.mjs
+Environment=TACET_HOST=0.0.0.0
+Environment=TACET_PORT=8443
+Environment=TACET_VLLM_BASE_URL=http://127.0.0.1:8000
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

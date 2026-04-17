@@ -1,4 +1,4 @@
-.PHONY: help build clean run-qemu extract-boot-artifacts extract-uki
+.PHONY: help build clean run-qemu extract-boot-artifacts extract-uki stage-runtime
 
 IMAGE_VERSION ?= $(shell grep '^ImageVersion=' mkosi.conf | cut -d= -f2)
 DISK_IMAGE_RAW=tacet_$(IMAGE_VERSION).raw
@@ -13,7 +13,8 @@ help:
 	@echo "==================="
 	@echo ""
 	@echo "Targets:"
-	@echo "  make build                  - Build VM disk image"
+	@echo "  make build                  - Build VM disk image (runs stage-runtime first)"
+	@echo "  make stage-runtime          - Build the Noise endpoint bundle into mkosi.extra"
 	@echo "  make clean                  - Remove build artifacts"
 	@echo "  make run-qemu               - Boot image in QEMU (CPU, for testing)"
 	@echo "  make extract-boot-artifacts - Extract kernel, initrd, cmdline from UKI"
@@ -25,7 +26,18 @@ help:
 	@echo "  $(CMDLINE_FILE)  - Kernel command line"
 	@echo ""
 
-build:
+RUNTIME_DIR := $(CURDIR)/../runtime
+RUNTIME_BUNDLE := $(RUNTIME_DIR)/dist/server.mjs
+EXTRA_TREE := $(CURDIR)/mkosi.extra
+
+stage-runtime:
+	@echo "Building Tacet Noise endpoint bundle..."
+	@pnpm --dir $(RUNTIME_DIR) build
+	@mkdir -p $(EXTRA_TREE)/opt/tacet
+	@cp $(RUNTIME_BUNDLE) $(EXTRA_TREE)/opt/tacet/server.mjs
+	@echo "Staged: $(EXTRA_TREE)/opt/tacet/server.mjs ($$(du -h $(EXTRA_TREE)/opt/tacet/server.mjs | cut -f1))"
+
+build: stage-runtime
 	@echo "Building Tacet VM image..."
 	@echo "Image version: $(IMAGE_VERSION)"
 	sudo env PATH="$$PATH" $$(which mkosi) --force --image-version=$(IMAGE_VERSION)
@@ -94,4 +106,5 @@ clean:
 	@rm -f $(DISK_IMAGE) $(DISK_IMAGE_RAW) $(UKI_IMAGE)
 	@rm -f $(KERNEL_IMAGE) $(INITRD_IMAGE) $(CMDLINE_FILE)
 	@rm -f .skeleton-hash .cmdline.raw
+	@rm -rf $(RUNTIME_DIR)/dist
 	@echo "Clean complete"

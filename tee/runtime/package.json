@@ -1,0 +1,29 @@
+{
+  "name": "@tacet/tee-runtime",
+  "version": "0.1.0",
+  "description": "Tacet TEE Noise endpoint — terminates Noise over WebSocket, forwards to local vLLM",
+  "type": "module",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc && esbuild src/index.ts --bundle --platform=node --target=node20 --format=esm --outfile=dist/server.mjs --banner:js=\"import { createRequire } from 'module'; const require = createRequire(import.meta.url);\"",
+    "dev": "tsx src/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tacet/noise": "workspace:*",
+    "ws": "^8",
+    "zod": "^3"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/ws": "^8",
+    "esbuild": "^0.25",
+    "tsx": "^4",
+    "typescript": "^5",
+    "vitest": "^3"
+  },
+  "files": ["dist"],
+  "license": "MIT"
+}
