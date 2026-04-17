@@ -1,0 +1,8 @@
+# Tacet TEE VM filesystem table
+# Model weights on secondary virtio disk (read-only)
+
+tmpfs  /tmp      tmpfs  mode=1777,strictatime,nosuid,nodev,size=50%  0 0
+tmpfs  /var/log  tmpfs  mode=0755,strictatime,nosuid,nodev,size=1G   0 0
+
+# Secondary disk for model weights (attached at runtime)
+/dev/vdb  /models  ext4  ro,noatime,nofail  0 0

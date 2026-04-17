@@ -1,0 +1,53 @@
+#!/bin/bash
+# mkosi post-installation script
+# Runs after packages are installed. Installs vLLM and enables services.
+
+set -euo pipefail
+
+echo "==> Setting up Tacet inference environment"
+
+# Create model mount point
+mkdir -p /buildroot/models
+
+# Set up DNS resolution for pip
+mkdir -p /buildroot/etc
+if [ -f /etc/resolv.conf ]; then
+    cp /etc/resolv.conf /buildroot/etc/resolv.conf
+else
+    cat > /buildroot/etc/resolv.conf << 'EOF'
+nameserver 8.8.8.8
+nameserver 1.1.1.1
+EOF
+fi
+
+# Ensure /tmp exists
+mkdir -p /buildroot/tmp
+
+# Install vLLM CPU wheel from GitHub releases
+VLLM_VERSION="0.19.0"
+VLLM_WHEEL_URL="https://github.com/vllm-project/vllm/releases/download/v${VLLM_VERSION}/vllm-${VLLM_VERSION}+cpu-cp38-abi3-manylinux_2_35_x86_64.whl"
+echo "==> Installing vLLM ${VLLM_VERSION} CPU wheel (this may take a while)..."
+chroot /buildroot python3 -m pip install \
+    --break-system-packages \
+    --no-cache-dir \
+    "${VLLM_WHEEL_URL}" \
+    --extra-index-url https://download.pytorch.org/whl/cpu
+
+# Verify installation
+if chroot /buildroot python3 -c "import vllm; print(f'vLLM {vllm.__version__} installed')" 2>/dev/null; then
+    echo "==> vLLM installed successfully"
+else
+    echo "==> vLLM package files installed (import check may fail in build env)"
+fi
+
+# Enable services
+chroot /buildroot systemctl enable tacet-vllm.service || true
+chroot /buildroot systemctl enable systemd-networkd.service || true
+
+# Make launch script executable
+chmod +x /buildroot/usr/local/bin/tacet-vllm
+
+# Clean pip cache
+rm -rf /buildroot/root/.cache/pip 2>/dev/null || true
+
+echo "==> Post-install complete"

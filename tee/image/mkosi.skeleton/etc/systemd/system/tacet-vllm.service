@@ -1,0 +1,19 @@
+[Unit]
+Description=Tacet vLLM Inference Server
+After=local-fs.target network.target
+
+[Service]
+Type=simple
+User=root
+ExecStartPre=/bin/mkdir -p /tmp/huggingface /tmp/.cache
+ExecStart=/usr/local/bin/tacet-vllm
+Environment=HOME=/root
+Environment=HF_HUB_CACHE=/tmp/huggingface
+Environment=XDG_CACHE_HOME=/tmp/.cache
+# Default model path — override via drop-in or EnvironmentFile
+Environment=VLLM_MODEL=/models/current
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

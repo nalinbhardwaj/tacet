@@ -1,0 +1,37 @@
+#!/bin/bash
+# Tacet vLLM launcher
+# Reads config from environment variables, starts vLLM OpenAI-compatible server
+
+set -euo pipefail
+
+# Defaults (can be overridden via env vars or /etc/tacet/vllm.env)
+VLLM_MODEL="${VLLM_MODEL:-/models/current}"
+VLLM_HOST="${VLLM_HOST:-0.0.0.0}"
+VLLM_PORT="${VLLM_PORT:-8000}"
+VLLM_DTYPE="${VLLM_DTYPE:-auto}"
+
+args=(
+  --model "$VLLM_MODEL"
+  --host "$VLLM_HOST"
+  --port "$VLLM_PORT"
+  --dtype "$VLLM_DTYPE"
+)
+
+# Optional: GPU memory utilization
+[ -n "${VLLM_GPU_MEMORY:-}" ] && args+=(--gpu-memory-utilization "$VLLM_GPU_MEMORY")
+
+# Optional: Tensor parallelism
+[ -n "${VLLM_TENSOR_PARALLEL_SIZE:-}" ] && args+=(--tensor-parallel-size "$VLLM_TENSOR_PARALLEL_SIZE")
+
+# Optional: Max model length
+[ -n "${VLLM_MAX_MODEL_LEN:-}" ] && args+=(--max-model-len "$VLLM_MAX_MODEL_LEN")
+
+# Optional: Served model name (what clients see in /v1/models)
+[ -n "${VLLM_SERVED_MODEL_NAME:-}" ] && args+=(--served-model-name "$VLLM_SERVED_MODEL_NAME")
+
+# Optional: Device (cpu for non-GPU testing)
+[ -n "${VLLM_DEVICE:-}" ] && args+=(--device "$VLLM_DEVICE")
+
+echo "[tacet-vllm] Starting vLLM with: ${args[*]}"
+
+exec python3 -m vllm.entrypoints.openai.api_server "${args[@]}"
