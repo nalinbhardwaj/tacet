@@ -1135,6 +1135,12 @@ Steps 1 and 2 can be done in parallel (independent). Everything else sequential.
 
 ### Step 1: Core TEE Image + Model Inference
 
+**Status**: Steps 1a–1e and 1g complete. Image builds reproducibly (validated on
+macOS + vast.ai Ubuntu 22.04 hosts). Step 1f (boot the image on real GPU hardware)
+is still deferred to Step 9 — vast.ai VMs don't expose IOMMU/VFIO for nested GPU
+passthrough, so proving that property needs a cloud that lets us boot custom images
+with a GPU attached (confidential VM, bare-metal, or similar).
+
 **Goal**: A reproducible VM image (built with Nix + mkosi) that boots, loads
 vLLM, serves a model over HTTP. Testable locally in QEMU (CPU, tiny model) and
 on cloud hardware (GPU, real model).
@@ -1545,6 +1551,10 @@ make sure inference still works through whatever layers we've added.
 
 ### Step 2: @tacet/noise Library
 
+**Status**: Complete. NK + XX patterns implemented, 94 tests passing
+(6 external vectors from cacophony/snow/noise-c, 11 session API tests,
+77 property/edge-case tests covering every layer).
+
 (Can start in parallel with Step 1)
 
 **Goal**: A standalone, browser-compatible Noise Protocol implementation with
@@ -1561,6 +1571,16 @@ Details to be planned when we start this step. High-level:
 - Zod schemas for message/config validation
 
 ### Step 3: Simple Test Script → Image
+
+**Status**: Complete. `tee/test-inference.ts` validated on 2026-04-17 against
+a live vLLM 0.19.0 + Qwen2.5-0.5B-Instruct serving on an RTX 5090 (Blackwell
+sm_120). All three test cases pass: `/v1/models`, non-streaming
+`/v1/chat/completions`, and streaming `/v1/chat/completions`.
+
+Caveat: the test was run against vLLM running *natively* on the vast.ai host
+(same `tacet-vllm` systemd unit, same vLLM pin), not against vLLM running
+*inside* our mkosi image. Proving the inside-the-image path awaits Step 1f
+at Step 9.
 
 **Goal**: A standalone script (not the full gateway/SDK yet) that talks to the
 vLLM endpoint inside the image. Just proves we have a working target to point

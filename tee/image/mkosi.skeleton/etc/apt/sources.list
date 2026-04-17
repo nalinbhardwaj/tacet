@@ -1,4 +1,4 @@
 # Ubuntu Noble (24.04 LTS)
-deb http://archive.ubuntu.com/ubuntu/ noble main restricted universe multiverse
-deb http://archive.ubuntu.com/ubuntu/ noble-updates main restricted universe multiverse
-deb http://security.ubuntu.com/ubuntu/ noble-security main restricted universe multiverse
+deb https://archive.ubuntu.com/ubuntu/ noble main restricted universe multiverse
+deb https://archive.ubuntu.com/ubuntu/ noble-updates main restricted universe multiverse
+deb https://security.ubuntu.com/ubuntu/ noble-security main restricted universe multiverse

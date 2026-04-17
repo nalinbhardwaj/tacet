@@ -28,7 +28,7 @@ help:
 build:
 	@echo "Building Tacet VM image..."
 	@echo "Image version: $(IMAGE_VERSION)"
-	sudo $$(which mkosi) --force --image-version=$(IMAGE_VERSION)
+	sudo env PATH="$$PATH" $$(which mkosi) --force --image-version=$(IMAGE_VERSION)
 	@echo ""
 	@echo "Extracting boot artifacts..."
 	@$(MAKE) extract-boot-artifacts
