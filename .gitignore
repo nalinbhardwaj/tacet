@@ -1,0 +1,25 @@
+# Nix
+result
+.direnv
+
+# mkosi build artifacts
+tee/image/mkosi.cache/
+tee/image/mkosi.output/
+tee/image/mkosi.extra/
+tee/image/.esp-mount/
+tee/image/.skeleton-hash
+tee/image/*.raw
+tee/image/*.qcow2
+tee/image/*.efi
+tee/image/*.vmlinuz
+tee/image/*.initrd
+tee/image/*.cmdline
+
+# Node
+node_modules/
+dist/
+*.tsbuildinfo
+.turbo/
+
+# OS
+.DS_Store
